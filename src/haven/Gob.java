@@ -44,11 +44,7 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
     private static final Text.Foundry stagemax = new Text.Foundry(Text.sansb, 20).aa(true);
     private final Collection<ResAttr.Cell<?>> rdata = new LinkedList<ResAttr.Cell<?>>();
     private final Collection<ResAttr.Load> lrdata = new LinkedList<ResAttr.Load>();
-    private static final Tex[] gobhp = new Tex[]{
-            Text.renderstroked("25%", Color.WHITE, Color.BLACK, gobhpf).tex(),
-            Text.renderstroked("50%", Color.WHITE, Color.BLACK, gobhpf).tex(),
-            Text.renderstroked("75%", Color.WHITE, Color.BLACK, gobhpf).tex()
-    };
+
     private static final Color stagecolor = new Color(235, 235, 235);
     private static final Color stagemaxcolor = new Color(254, 100, 100);
     private static final Tex[] cropstg = new Tex[]{
@@ -443,13 +439,12 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
         if (hlt != null) {
             rl.prepc(hlt.getfx());
             if (Config.showgobhp && hlt.hp < 4) {
-                PView.Draw2D d = new PView.Draw2D() {
-                    public void draw2d(GOut g) {
-                        if (sc != null)
-                            g.image(gobhp[hlt.hp - 1], sc.sub(15, 10));
-                    }
-                };
-                rl.add(d, null);
+                Overlay ol = findol(Sprite.GOB_HEALTH_ID);
+                if (ol == null) {
+                    ols.add(new Gob.Overlay(Sprite.GOB_HEALTH_ID, new GobHealthSprite(hlt.hp)));
+                } else if (((GobHealthSprite)ol.spr).val != hlt.hp) {
+                    ((GobHealthSprite)ol.spr).update(hlt.hp);
+                }
             }
         }
 
@@ -463,10 +458,10 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
             boolean done = true;
             boolean empty = true;
             for (Overlay ol : ols) {
-                empty = false;
                 try {
                     Indir<Resource> olires = ol.res;
                     if (olires != null) {
+                        empty = false;
                         Resource olres = olires.get();
                         if (olres != null) {
                             if (olres.name.endsWith("-blood") || olres.name.endsWith("-windweed")) {
