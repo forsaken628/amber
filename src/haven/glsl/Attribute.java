@@ -27,7 +27,6 @@
 package haven.glsl;
 
 import java.util.List;
-
 import haven.GOut;
 import haven.GLBuffer;
 import haven.GLState.Buffer;
@@ -47,8 +46,8 @@ public class Attribute extends Variable.Global {
 
     private class Def extends Definition {
         public void output(Output out) {
-            if (out.ctx instanceof ShaderContext) {
-                ((ShaderContext) out.ctx).prog.attribs.add(Attribute.this);
+            if(out.ctx instanceof ShaderContext) {
+                ((ShaderContext)out.ctx).prog.attribs.add(Attribute.this);
             }
             out.write("attribute ");
             super.output(out);
@@ -56,25 +55,17 @@ public class Attribute extends Variable.Global {
     }
 
     public void use(Context ctx) {
-        if (!defined(ctx))
+        if(!defined(ctx))
             ctx.vardefs.add(new Def());
     }
 
     public static abstract class AutoInstanced extends Attribute {
-        public AutoInstanced(Type type, Symbol name) {
-            super(type, name);
-        }
+        public AutoInstanced(Type type, Symbol name) {super(type, name);}
+        public AutoInstanced(Type type, String infix) {super(type, infix);}
+        public AutoInstanced(Type type) {super(type);}
 
-        public AutoInstanced(Type type, String infix) {
-            super(type, infix);
-        }
-
-        public AutoInstanced(Type type) {
-            super(type);
-        }
-
-        public abstract GLBuffer bindiarr(GOut g, List<Buffer> inst, GLBuffer prevbuf);
-
+        public abstract void filliarr(GOut g, List<Buffer> inst, GLBuffer buf);
+        public abstract void bindiarr(GOut g, GLBuffer buf);
         public abstract void unbindiarr(GOut g, GLBuffer buf);
     }
 }

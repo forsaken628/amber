@@ -117,6 +117,10 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
                 rl.add(spr, null);
             return (false);
         }
+
+        public Object staticp() {
+            return((spr == null)?null:spr.staticp());
+        }
     }
 
     /* XXX: This whole thing didn't turn out quite as nice as I had
@@ -189,6 +193,8 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
             treestg[i - 10] = Text.renderstroked(i + "", stagecolor, Color.BLACK, gobhpf).tex();
         }
     }
+
+    public static class Static {}
 
     public Gob(Glob glob, Coord c, long id, int frame) {
         this.glob = glob;
@@ -561,6 +567,38 @@ public class Gob implements Sprite.Owner, Skeleton.ModOwner, Rendered {
         if (ki != null)
             rl.add(ki.fx, null);
         return (false);
+    }
+
+    private static final Object DYNAMIC = new Object();
+    private Object seq = null;
+    public Object staticp() {
+        if(seq == null) {
+            Object fs = new Static();
+            for(GAttrib attr : attr.values()) {
+                Object as = attr.staticp();
+                if(as == Rendered.CONSTANS) {
+                } else if(as instanceof Static) {
+                } else {
+                    fs = null;
+                    break;
+                }
+            }
+            for(Overlay ol : ols) {
+                Object os = ol.staticp();
+                if (os == Rendered.CONSTANS) {
+                } else if (os instanceof Static) {
+                } else {
+                    fs = null;
+                    break;
+                }
+            }
+            seq = fs;
+        }
+        return((seq == DYNAMIC)?null:seq);
+    }
+
+    void changed() {
+        seq = null;
     }
 
     public Random mkrandoom() {
