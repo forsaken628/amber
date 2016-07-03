@@ -665,7 +665,7 @@ public class MapView extends PView implements DTarget, Console.Directory, PFList
                 Gob.Overlay rovl = null;
                 boolean show = false;
 
-                if (res.name.equals("gfx/terobjs/minesupport")) {
+                if (res.name.equals("gfx/terobjs/minesupport") || res.name.equals("gfx/terobjs/ladder")) {
                     rovl = rovlsupport;
                     show = Config.showminerad;
                 } else if (res.name.equals("gfx/terobjs/column")) {
@@ -1680,7 +1680,7 @@ public class MapView extends PView implements DTarget, Console.Directory, PFList
                     for (Widget w = gameui().chat.lchild; w != null; w = w.prev) {
                         if (w instanceof ChatUI.MultiChat) {
                             ChatUI.MultiChat chat = (ChatUI.MultiChat) w;
-                            if (chat.name().equals("Area Chat")) {
+                            if (chat.name().equals(Resource.getLocString(Resource.BUNDLE_LABEL, "Area Chat"))) {
                                 chat.send(ChatUI.CMD_PREFIX_HLIGHT + inf.gob.id);
                                 break;
                             }
@@ -1691,6 +1691,9 @@ public class MapView extends PView implements DTarget, Console.Directory, PFList
                     if (Config.pf && curs != null && !curs.name.equals("gfx/hud/curs/study")) {
                         pfRightClick(inf.gob, getid(inf.r), clickb, 0, null);
                     } else {
+                        if (Config.donotaggrofriends && curs != null && curs.name.equals("gfx/hud/curs/atk") && inf.gob.isFriend())
+                            return;
+
                         wdgmsg("click", pc, mc, clickb, ui.modflags(), 0, (int) inf.gob.id, inf.gob.rc, 0, getid(inf.r));
                     }
                 } else {
@@ -2233,8 +2236,7 @@ public class MapView extends PView implements DTarget, Console.Directory, PFList
                 try {
                     Resource res = gob.getres();
                     if (res != null && "body".equals(res.basename()) && gob.id != player().id) {
-                        KinInfo kininfo = gob.getattr(KinInfo.class);
-                        if (kininfo == null || kininfo.group == 2) {
+                        if (!gob.isFriend()) {
                             double dist = player().rc.dist(gob.rc);
                             if (dist < gobclsdist) {
                                 gobcls = gob;
